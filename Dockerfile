@@ -41,7 +41,7 @@ RUN pecl install gnupg ssh2-1.4.1 pcov \
 
 # Configure PHP for CI
 RUN echo "memory_limit=512M" > /usr/local/etc/php/conf.d/ci.ini \
-    && echo "opcache.enable_cli=1" >> /usr/local/etc/php/conf.d/ci.ini \
+    && echo "opcache.enable_cli=0" >> /usr/local/etc/php/conf.d/ci.ini \
     && echo "pcov.enabled=1" >> /usr/local/etc/php/conf.d/ci.ini
 
 # Verify extensions
