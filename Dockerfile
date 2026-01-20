@@ -16,6 +16,8 @@ RUN apk add --no-cache \
     oniguruma-dev \
     libzip-dev \
     linux-headers \
+    imagemagick \
+    imagemagick-dev \
     $PHPIZE_DEPS
 
 # Configure and install PHP extensions
@@ -35,11 +37,13 @@ RUN docker-php-ext-configure gd \
         bcmath \
         opcache
 
-# Install PECL extensions
-RUN pecl install gnupg ssh2-1.4.1 pcov \
-    && docker-php-ext-enable gnupg ssh2 pcov
+# Install PECL extensions (redis + imagick added)
+RUN pecl install gnupg ssh2-1.4.1 pcov redis imagick \
+    && docker-php-ext-enable gnupg ssh2 pcov redis imagick
 
 # Configure PHP for CI
+# NOTE: opcache.enable_cli=0 is required - enabling it causes Mockery demeter mocks
+# to leak between tests, breaking typed property assignments (e.g., LoggerInterface)
 RUN echo "memory_limit=512M" > /usr/local/etc/php/conf.d/ci.ini \
     && echo "opcache.enable_cli=0" >> /usr/local/etc/php/conf.d/ci.ini \
     && echo "pcov.enabled=1" >> /usr/local/etc/php/conf.d/ci.ini
@@ -49,6 +53,8 @@ RUN php -m | grep -i gnupg \
     && php -m | grep -i ssh2 \
     && php -m | grep -i pcov \
     && php -m | grep -i gd \
+    && php -m | grep -i redis \
+    && php -m | grep -i imagick \
     && echo "All required extensions installed"
 
 # Set working directory
