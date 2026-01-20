@@ -35,19 +35,20 @@ RUN docker-php-ext-configure gd \
         mbstring \                                                                                                                                                                 
         zip \                                                                                                                                                                      
         bcmath \                                                                                                                                                                   
-        opcache \
-        pcntl                                                                                                                                                                  
+        opcache \                                                                                                                                                                  
+        pcntl                                                                                                                                                                      
                                                                                                                                                                                     
-# Install PECL extensions (redis + imagick added)                                                                                                                                  
+# Install PECL extensions                                                                                                                                                          
 RUN pecl install gnupg ssh2-1.4.1 pcov redis imagick \                                                                                                                             
     && docker-php-ext-enable gnupg ssh2 pcov redis imagick                                                                                                                         
                                                                                                                                                                                     
 # Install Composer                                                                                                                                                                 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer                                                                                                                         
                                                                                                                                                                                     
+# Fix git safe.directory for CI environments                                                                                                                                       
+RUN git config --global --add safe.directory '*'                                                                                                                                   
+                                                                                                                                                                                    
 # Configure PHP for CI                                                                                                                                                             
-# NOTE: opcache.enable_cli=0 is required - enabling it causes Mockery demeter mocks                                                                                                
-# to leak between tests, breaking typed property assignments (e.g., LoggerInterface)                                                                                               
 RUN echo "memory_limit=512M" > /usr/local/etc/php/conf.d/ci.ini \                                                                                                                  
     && echo "opcache.enable_cli=0" >> /usr/local/etc/php/conf.d/ci.ini \                                                                                                           
     && echo "pcov.enabled=1" >> /usr/local/etc/php/conf.d/ci.ini                                                                                                                   
@@ -59,8 +60,7 @@ RUN php -m | grep -i gnupg \
     && php -m | grep -i gd \                                                                                                                                                       
     && php -m | grep -i redis \                                                                                                                                                    
     && php -m | grep -i imagick \                                                                                                                                                  
+    && php -m | grep -i pcntl \                                                                                                                                                    
     && echo "All required extensions installed"                                                                                                                                    
                                                                                                                                                                                     
-# Set working directory                                                                                                                                                            
-WORKDIR /workspace                                                                                                                                                                 
-                                                                                                                                                                                    
+WORKDIR /workspace
