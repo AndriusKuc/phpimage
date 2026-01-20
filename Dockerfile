@@ -35,7 +35,8 @@ RUN docker-php-ext-configure gd \
         mbstring \                                                                                                                                                                 
         zip \                                                                                                                                                                      
         bcmath \                                                                                                                                                                   
-        opcache                                                                                                                                                                    
+        opcache \
+        pcntl                                                                                                                                                                  
                                                                                                                                                                                     
 # Install PECL extensions (redis + imagick added)                                                                                                                                  
 RUN pecl install gnupg ssh2-1.4.1 pcov redis imagick \                                                                                                                             
